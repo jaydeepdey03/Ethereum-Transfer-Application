@@ -1,18 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { SiEthereum } from "react-icons/si";
 import { BsInfoCircle } from "react-icons/bs";
 import Connectrequest from './Connectrequest';
-
-
-// const [text, setText] = useState('')
-const handleChange = (e, text) => {
-    // setText(e.target.value)
-}
-const handleSubmit = () => {
-    // setText(e.target.value)
-}
-
-
+import { TransactionContext } from '../context/TransactionContext';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 const Input = ({ placeholder, name, type, value, handleChange }) => (
     <input
@@ -26,7 +18,22 @@ const Input = ({ placeholder, name, type, value, handleChange }) => (
 );
 
 const Welcome = () => {
-    const [connected, setConnected] = useState(true)
+
+    const {connectWallet, connected, account,formData, handleChange, setFormData } = useContext(TransactionContext)
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        const {addressTo, reciever, keyword, message} = formData
+
+        if(!addressTo || !reciever || !keyword || !message){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Fill all the fields!',
+            })
+        }
+    }
+
     if (connected) {
         return (
             <div className="flex w-full justify-center items-center">
@@ -44,7 +51,7 @@ const Welcome = () => {
                                 </div>
                                 <div className='flex h-[90%] space-y-7 items-start m-10 justify-end flex-col'>
                                     <p className="text-white font-semibold text-3xl">
-                                        0xseiiehfefnefj....efoijjefj
+                                       {account}
                                     </p>
                                     <p className=" text-lg font-semibold text-white mt-1">
                                         Your name

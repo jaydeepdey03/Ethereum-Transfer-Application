@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { HiMenuAlt4 } from 'react-icons/hi'
 import { AiOutlineClose } from 'react-icons/ai'
+import { TransactionContext } from '../context/TransactionContext';
 
 const NavBarItem = ({ title, classprops }) => (
     <li className={`mx-4 cursor-pointer ${classprops}`}>{title}</li>
@@ -8,7 +9,11 @@ const NavBarItem = ({ title, classprops }) => (
 
 const Navbar = () => {
     const [toggleMenu, setToggleMenu] = useState(false)
-    const [connected, setConnected] = useState(true)
+
+    const {connectWallet, connected} = useContext(TransactionContext)
+
+    console.log(connected)
+
     return (
         <nav className="w-full flex md:justify-center justify-between items-center p-4">
             <div className="md:flex-[0.5] flex-initial justify-center items-center">
@@ -21,7 +26,7 @@ const Navbar = () => {
                 {connected ? <li className="bg-[#8c9dd7] flex justify-center items-center py-2 px-7 mx-4 rounded-full cursor-default">
                     <h1 className={`h-3 w-3 mr-2 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`}></h1>
                     Connected
-                </li> : <li className="bg-[#2952e3] py-2 px-7 mx-4 flex justify-center items-center rounded-full cursor-pointer hover:bg-[#2546bd]">
+                </li> : <li onClick={connectWallet} className="bg-[#2952e3] py-2 px-7 mx-4 flex justify-center items-center rounded-full cursor-pointer hover:bg-[#2546bd]">
                     <h1 className={`h-3 w-3 mr-2 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`}></h1> Connect to Wallet
                 </li>}
                 <li className="bg-[#2952e3] py-2 px-7 mx-4 rounded-full cursor-pointer hover:bg-[#2546bd]">
