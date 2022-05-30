@@ -6,31 +6,34 @@ import { TransactionContext } from '../context/TransactionContext';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
-const Input = ({ placeholder, name, type, value, handleChange }) => (
-    <input
-        className="my-2 p-2 outline-none bg-transparent border-none text-sm white-glassmorphism shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        value={value}
-        type={type}
-        step="0.0001"
-        placeholder={placeholder}
-        onChange={() => handleChange(e)}
-    />
-);
+
 
 const Welcome = () => {
 
-    const {connectWallet, connected, account,formData, handleChange, setFormData } = useContext(TransactionContext)
+    const { connectWallet, connected, account, formData, handleChange, sendTransaction } = useContext(TransactionContext)
+
+    const Input = ({ placeholder, name, type, value, handleChange }) => (
+        <input
+            className="my-2 p-2 outline-none bg-transparent border-none text-sm white-glassmorphism shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            value={value}
+            type={type}
+            step="0.0001"
+            placeholder={placeholder}
+            onChange={(e) => handleChange(e, name)}
+        />
+    );
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        const {addressTo, reciever, keyword, message} = formData
+        const { addressTo, reciever, keyword, message } = formData
 
-        if(!addressTo || !reciever || !keyword || !message){
+        if (!addressTo || !reciever || !keyword || !message) {
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Fill all the fields!',
             })
+            sendTransaction()
         }
     }
 
@@ -51,7 +54,7 @@ const Welcome = () => {
                                 </div>
                                 <div className='flex h-[90%] space-y-7 items-start m-10 justify-end flex-col'>
                                     <p className="text-white font-semibold text-3xl">
-                                       {account}
+                                        {account}
                                     </p>
                                     <p className=" text-lg font-semibold text-white mt-1">
                                         Your name

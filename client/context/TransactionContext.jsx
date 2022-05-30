@@ -26,13 +26,21 @@ export const TransactionProvider = ({ children }) => {
 
     const [connected, setConnected] = useState(false)
     const [account, setAccount] = useState('')
+    const [formData, setFormData] = useState({ addressTo: '', amount: '', keyword: '', message: '' })
+    const [loading, setLoading] = useState(false)
+    const [count, setCount] = useState(0)
 
-    const [formData, setFormData] = useState({addressTo: '', reciever: '', keyword: '', message: ''})
+    useEffect(() => {
+        const a = localStorage.getItem('transactionCount')
+        setCount(a)
+    }, [])
+   
+
 
     const handleChange = (event, name) => {
-        setFormData((prevState) => ({...prevState, [name]: event.target.value}))
+        setFormData((prevState) => ({ ...prevState, [name]: event.target.value }))
     }
-    
+
 
     const checkIfWalletIsConnected = async () => {
         try {
@@ -66,14 +74,12 @@ export const TransactionProvider = ({ children }) => {
                 })
                 setConnected(false)
             }
-
-            console.log(account)
         }
         catch (error) {
             console.error(error)
             setConnected(false)
         }
-    } 
+    }
 
 
     const connectWallet = async () => {
@@ -101,12 +107,57 @@ export const TransactionProvider = ({ children }) => {
         }
     }
 
+    const sendTransaction = async () => {
+        try {
+            if (!ethereum) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png',
+                    imageHeight: '100',
+                    imageWidth: '100',
+                    text: 'Connect to Metamask!',
+                })
+            }
+
+            const { addressTo, amount, keyword, message } = formData
+            const transactionContract = getEthereumContract()
+
+            const parseAmt = ethers.utils.parseEther(amount)
+
+            await ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [{
+                    from: account,
+                    to: addressTo,
+                    gas: '0x5208', // 21000 gwei,
+                    value: parseAmt._hex,
+
+                }],
+            })
+
+            const transactionHash = await transactionContract.addToBlockchain(addressTo, parseAmt, message, keyword)
+
+            setLoading(true)
+            await transactionHash.wait()
+            setLoading(false)
+
+            // setting transaction count 
+            const transactionCount = await transactionContract.getTransaction()
+            setCount(transactionCount.toNumber())
+
+        } catch (error) {
+            console.error(error)
+            throw new Error("No Ethereum Object")
+        }
+    }
+
     useEffect(() => {
         checkIfWalletIsConnected()
     }, [])
 
     return (
-        <TransactionContext.Provider value={{ connectWallet, account, connected, formData, handleChange, setFormData }}>
+        <TransactionContext.Provider value={{ connectWallet, account, connected, formData, handleChange, sendTransaction }}>
             {children}
         </TransactionContext.Provider>
     )
